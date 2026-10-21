@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EcoSort AI – Snap it. Sort it. Save the planet.</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;700&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+:root{
+  --forest:#2E7D32; --sage:#A7C4A0; --mint:#E8F0E6; --cream:#F8F6F0;
+  --bg:#F8F6F0; --card:#ffffff; --soft:#E8F0E6; --text:#1f2a1f; --muted:#56655a; --line:#d5e0d1; --accent:#2E7D32; --onaccent:#ffffff;
+  --shadow:0 6px 20px rgba(46,125,50,.10);
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#141a14;--card:#1d261d;--soft:#243024;--text:#eef3ec;--muted:#aebcab;--line:#34443a;--accent:#7fc784;--onaccent:#0f1a10;--shadow:0 6px 20px rgba(0,0,0,.35)}
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font:400 17px/1.6 "DM Sans",system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;line-height:1.15;margin:0 0 .5em;font-weight:700}
+h1{font-size:clamp(2.2rem,6vw,3.6rem)} h2{font-size:clamp(1.7rem,4vw,2.3rem)} h3{font-size:1.2rem}
+p{margin:0 0 1em}
+button{font:inherit;cursor:pointer;touch-action:manipulation}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+
+/* header */
+header{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar{max-width:1000px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;background:none;border:0;color:var(--text);font:700 1.25rem Fraunces,Georgia,serif;padding:6px 0;min-height:44px}
+nav{display:flex;gap:4px}
+nav button{background:none;border:0;color:var(--muted);padding:10px 14px;border-radius:99px;min-height:44px;font-weight:500}
+nav button[aria-current="page"]{background:var(--soft);color:var(--accent);font-weight:700}
+
+main{max-width:1000px;margin:0 auto;padding:22px 18px 60px}
+.screen[hidden]{display:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);padding:24px}
+.lead{color:var(--muted);font-size:1.12rem;max-width:34em}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 26px;border-radius:99px;border:2px solid var(--accent);background:var(--accent);color:var(--onaccent);font-weight:700;transition:transform .12s}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.small{min-height:44px;padding:0 18px;font-size:.95rem}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.topbar{display:flex;justify-content:space-between;gap:10px;margin-bottom:18px}
+
+/* home */
+.hero{position:relative;overflow:hidden;background:linear-gradient(160deg,var(--soft),var(--card) 70%);padding:clamp(28px,6vw,64px)}
+.hero .leafbg{position:absolute;right:-30px;top:-20px;width:min(55%,360px);opacity:.55;pointer-events:none}
+.hero>*:not(.leafbg){position:relative}
+.tag{font:500 italic 1.3rem Fraunces,Georgia,serif;color:var(--accent);margin:0 0 18px}
+.pill{display:inline-block;background:var(--soft);color:var(--accent);border-radius:99px;padding:4px 14px;font-size:.85rem;font-weight:700;margin-bottom:16px}
+.steps3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:22px}
+.steps3 .card{padding:18px}
+
+/* samples */
+.drop{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;border:2px dashed var(--sage);border-radius:20px;padding:22px;background:var(--soft);cursor:pointer}
+.drop input{position:absolute;opacity:0;width:1px;height:1px}
+.drop:focus-within{outline:3px solid var(--accent);outline-offset:3px}
+.preview{max-width:100%;max-height:260px;border-radius:16px;margin-top:10px;object-fit:contain}
+.samples{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:12px 0 22px}
+.sample{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:14px;text-align:center;color:var(--text);font-weight:700;min-height:44px}
+.sample svg{width:84px;height:84px;display:block;margin:0 auto 6px}
+.sample[aria-pressed="true"]{border-color:var(--accent);background:var(--soft);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
+.status{color:var(--muted);min-height:1.6em}
+
+/* results */
+.res{display:grid;grid-template-columns:1fr;gap:18px}
+@media(min-width:760px){.res{grid-template-columns:260px 1fr}}
+.imgbox{background:var(--soft);border-radius:20px;padding:18px;text-align:center}
+.imgbox svg{width:150px;height:150px}
+.imgbox img{max-width:100%;max-height:240px;border-radius:12px}
+.badge{display:inline-block;border-radius:8px;padding:3px 10px;font-size:.78rem;font-weight:700;letter-spacing:.04em;background:#fff3cd;color:#6b4e00;border:1px solid #e6cf7a}
+.cat{display:inline-block;border-radius:99px;padding:6px 16px;font-weight:700;margin:6px 0 12px;color:#fff}
+.tip{background:var(--soft);border-left:5px solid var(--accent);border-radius:14px;padding:14px 16px;margin:16px 0}
+.note{font-size:.92rem;color:var(--muted)}
+ol,ul{padding-left:1.2em;margin:0 0 1em} li{margin-bottom:.4em}
+
+/* grids */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:26px}
+.grid .card{padding:20px}
+.challenge{background:linear-gradient(160deg,var(--soft),var(--card))}
+.done{color:var(--accent);font-weight:700}
+footer{max-width:1000px;margin:0 auto;padding:0 18px 40px;color:var(--muted);font-size:.9rem;text-align:center}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <button class="brand" data-go="home" aria-label="EcoSort AI – go to Home">
+      <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#2E7D32"/><path d="M9 21c0-8 6-12 14-12 0 8-4 14-12 14M9 23c3-5 6-8 10-10" fill="#A7C4A0" stroke="#E8F0E6" stroke-width="1.5" stroke-linecap="round"/></svg>
+      EcoSort AI
+    </button>
+    <nav aria-label="Main">
+      <button data-go="home">Home</button>
+      <button data-go="upload">Identify</button>
+      <button data-go="tips">Eco Tips</button>
+      <button data-go="about">About</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- 1. HOME -->
+  <section class="screen" id="home">
+    <div class="card hero">
+      <svg class="leafbg" viewBox="0 0 200 200" aria-hidden="true"><g fill="none" stroke="#A7C4A0" stroke-width="3" stroke-linecap="round"><path d="M30 190C30 80 90 20 190 10 190 110 130 170 40 180"/><path d="M40 180C80 120 110 80 160 40"/><path d="M95 120l35-5M70 150l40-8M118 85l30-2"/></g></svg>
+      <span class="pill">University prototype</span>
+      <h1>EcoSort AI</h1>
+      <p class="tag">Snap it. Sort it. Save the planet.</p>
+      <p class="lead">Not sure which bin an item belongs in? EcoSort AI shows how a photo-based sorting helper could guide everyday disposal choices, so less recyclable material ends up in landfill.</p>
+      <div class="row">
+        <button class="btn" data-go="upload">Identify Waste</button>
+        <button class="btn ghost" data-go="about">Learn More</button>
+      </div>
+    </div>
+    <div class="steps3">
+      <div class="card"><h3>Snap</h3><p class="note" style="margin:0">Add a photo or pick a sample item.</p></div>
+      <div class="card"><h3>Sort</h3><p class="note" style="margin:0">See a suggested category and how to dispose of it.</p></div>
+      <div class="card"><h3>Save</h3><p class="note" style="margin:0">Learn small habits that cut waste.</p></div>
+    </div>
+  </section>
+
+  <!-- 2. UPLOAD -->
+  <section class="screen" id="upload" hidden>
+    <div class="topbar">
+      <button class="btn ghost small" data-back>← Back</button>
+      <button class="btn ghost small" data-go="home">Home</button>
+    </div>
+    <div class="card">
+      <h2>Upload waste</h2>
+      <p class="lead">Add a photo of your own item, or choose one of the three sample items below.</p>
+      <label class="drop">
+        <input type="file" id="file" accept="image/*">
+        <strong>Tap to take or choose a photo</strong>
+        <span class="note">Your photo stays on your device. Nothing is uploaded anywhere.</span>
+        <img id="prev" class="preview" alt="Preview of your chosen photo" hidden>
+      </label>
+      <h3 style="margin-top:24px">Or try a sample item</h3>
+      <div class="samples" id="samples"></div>
+      <p class="status" id="status" aria-live="polite">Nothing selected yet.</p>
+      <button class="btn" id="cont" disabled>Continue</button>
+      <p class="note" style="margin-top:14px">Real AI image recognition is not built into this prototype. Samples show pre-written demo results.</p>
+    </div>
+  </section>
+
+  <!-- 3. RESULTS -->
+  <section class="screen" id="results" hidden>
+    <div class="topbar">
+      <button class="btn ghost small" data-back>← Back</button>
+      <button class="btn ghost small" data-go="home">Home</button>
+    </div>
+    <div class="card"><div id="resbody"></div></div>
+    <div class="row" style="margin-top:18px">
+      <button class="btn" id="another">Identify another item</button>
+      <button class="btn ghost" data-go="tips">See Eco Tips</button>
+    </div>
+  </section>
+
+  <!-- 4. TIPS -->
+  <section class="screen" id="tips" hidden>
+    <div class="topbar">
+      <button class="btn ghost small" data-back>← Back</button>
+      <button class="btn ghost small" data-go="home">Home</button>
+    </div>
+    <h2>Eco tips</h2>
+    <h3>Waste segregation tips</h3>
+    <div class="grid">
+      <div class="card"><h3>Empty and rinse</h3><p class="note" style="margin:0">Food-soiled packaging can spoil a whole batch of clean recycling. A quick rinse helps.</p></div>
+      <div class="card"><h3>Keep food waste separate</h3><p class="note" style="margin:0">Compost or use a food-waste bin so scraps don’t contaminate dry recyclables.</p></div>
+      <div class="card"><h3>Check local rules</h3><p class="note" style="margin:0">Accepted materials differ by city and council. Always check your local guide.</p></div>
+      <div class="card"><h3>When in doubt, leave it out</h3><p class="note" style="margin:0">One wrong item can contaminate a bin. Ask your local service if unsure.</p></div>
+    </div>
+    <h3>Did you know?</h3>
+    <div class="grid">
+      <div class="card"><p style="margin:0">Roughly one third of all food produced for people is lost or wasted worldwide.</p></div>
+      <div class="card"><p style="margin:0">Glass can be recycled again and again without losing quality.</p></div>
+      <div class="card"><p style="margin:0">Food rotting in landfill releases methane, a powerful greenhouse gas.</p></div>
+    </div>
+    <div class="card challenge">
+      <span class="pill">Daily eco challenge</span>
+      <h3 id="chTitle"></h3>
+      <p id="chText"></p>
+      <div class="row">
+        <button class="btn small" id="chDone">Mark as done</button>
+        <button class="btn ghost small" id="chNew">Show another challenge</button>
+        <span class="done" id="chMsg" aria-live="polite"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. ABOUT -->
+  <section class="screen" id="about" hidden>
+    <div class="topbar">
+      <button class="btn ghost small" data-back>← Back</button>
+      <button class="btn ghost small" data-go="home">Home</button>
+    </div>
+    <div class="card" style="margin-bottom:18px;border-color:var(--accent)">
+      <span class="badge">PROTOTYPE</span>
+      <h2 style="margin-top:10px">This is a prototype</h2>
+      <p style="margin:0">EcoSort AI is a design concept made for a university Environmental Studies assignment. <strong>No genuine AI image recognition is implemented.</strong> The sample results are pre-written demonstrations, and uploaded photos are only previewed on your own device.</p>
+    </div>
+    <div class="grid">
+      <div class="card"><h3>The problem</h3><p style="margin:0">People often put items in the wrong bin because the rules are confusing. Contaminated recycling can be rejected, and recoverable materials and food waste end up in landfill.</p></div>
+      <div class="card"><h3>How AI could help</h3><p style="margin:0">A trained image-recognition model could look at a photo, suggest the likely material, and show local disposal steps in seconds, right when someone is holding the item.</p></div>
+      <div class="card"><h3>Possible benefits</h3><p style="margin:0">Cleaner recycling streams, less landfill, lower methane from food waste, and better everyday habits. These are potential benefits that would need real testing.</p></div>
+    </div>
+    <button class="btn" data-go="upload">Try the demo</button>
+  </section>
+</main>
+
+<footer>EcoSort AI · Student prototype · Demo results are pre-written, not AI-generated.</footer>
+
+<script>
+/* ---------- DATA ---------- */
+const ITEMS = {
+  bottle: {
+    name: "Plastic bottle", cat: "Recycling – Plastic", color: "#2E7D32",
+    steps: ["Empty any remaining liquid.", "Give it a quick rinse.", "Check the label, then put the cap back on if your local service asks for it.", "Place it in the dry recycling bin."],
+    tip: "Recycling plastic uses far less energy than making new plastic, and it keeps bottles out of oceans and landfill.",
+    svg: `<svg viewBox="0 0 120 120" aria-hidden="true"><rect x="48" y="6" width="24" height="12" rx="3" fill="#2E7D32"/><path d="M52 18h16v14c0 6 16 12 16 28v44a8 8 0 0 1-8 8H44a8 8 0 0 1-8-8V60c0-16 16-22 16-28z" fill="#cfe8f3" stroke="#6aa6c4" stroke-width="3"/><rect x="38" y="62" width="44" height="26" fill="#A7C4A0"/><path d="M52 70c4-6 12-6 16 0-4 8-12 8-16 0z" fill="#2E7D32"/></svg>`
+  },
+  peel: {
+    name: "Banana peel", cat: "Organic – Compost / Food waste", color: "#8a6d1f",
+    steps: ["Remove any sticker.", "Put it in your compost or food-waste bin.", "Don’t bag it in plastic unless the bag is certified compostable.", "No compost? Use general waste as a last resort."],
+    tip: "Food in landfill produces methane. Composting turns scraps into soil nutrients instead.",
+    svg: `<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M22 40c4 40 40 62 82 40-6 6-14 10-24 12-34 4-56-20-58-52z" fill="#f4d03f" stroke="#b8941a" stroke-width="3" stroke-linejoin="round"/><path d="M22 40l-6-12 12 2" fill="#8a6d1f" stroke="#8a6d1f" stroke-width="3" stroke-linejoin="round"/><path d="M40 76c20 10 38 8 56-6" fill="none" stroke="#b8941a" stroke-width="3" stroke-linecap="round"/></svg>`
+  },
+  cup: {
+    name: "Paper cup", cat: "Check locally – Often general waste", color: "#8a5a2b",
+    steps: ["Empty it and remove the lid.", "Plastic lids can often be recycled. Check your local rules.", "Most paper cups have a plastic lining, so many services cannot recycle them. Use general waste unless your area accepts them.", "Cardboard sleeves are usually recyclable."],
+    tip: "The simplest fix is a reusable cup. Many cafés give a small discount when you bring your own.",
+    svg: `<svg viewBox="0 0 120 120" aria-hidden="true"><rect x="28" y="16" width="64" height="10" rx="4" fill="#e9e2d0" stroke="#b9ad90" stroke-width="3"/><path d="M32 26h56l-7 80a6 6 0 0 1-6 5H45a6 6 0 0 1-6-5z" fill="#fff" stroke="#b9ad90" stroke-width="3"/><path d="M35 50h50l-3 34H38z" fill="#A7C4A0"/><path d="M50 64c4-6 14-6 20 0-6 8-16 8-20 0z" fill="#2E7D32"/></svg>`
+  }
+};
+const CHALLENGES = [
+  ["Refuse one single-use item", "Today, say no to a plastic bag, straw or disposable cup."],
+  ["Sort your bin", "Check what is in your recycling bin today and remove anything that does not belong."],
+  ["Bring a bottle", "Carry a refillable water bottle all day."],
+  ["Plan a zero-waste meal", "Cook one meal using up leftovers or ingredients that are about to expire."],
+  ["Learn one local rule", "Look up one item your local recycling service accepts that surprised you."]
+];
+
+/* ---------- STATE ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+let current = "home", history_ = [], selected = null, photoURL = null, chIndex = new Date().getDate() % CHALLENGES.length;
+
+/* ---------- NAVIGATION ---------- */
+function go(id, push = true) {
+  if (id === "home") history_ = [];
+  else if (push && current !== id) history_.push(current);
+  current = id;
+  $$(".screen").forEach(s => s.hidden = s.id !== id);
+  $$("nav button").forEach(b => {
+    const active = b.dataset.go === id || (id === "results" && b.dataset.go === "upload");
+    active ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current");
+  });
+  window.scrollTo(0, 0);
+}
+function back() { go(history_.pop() || "home", false); }
+document.addEventListener("click", e => {
+  const g = e.target.closest("[data-go]"), b = e.target.closest("[data-back]");
+  if (g) go(g.dataset.go);
+  else if (b) back();
+});
+
+/* ---------- UPLOAD SCREEN ---------- */
+function buildSamples() {
+  $("#samples").innerHTML = Object.entries(ITEMS).map(([k, v]) =>
+    `<button class="sample" data-key="${k}" aria-pressed="false">${v.svg}${v.name}</button>`).join("");
+  $$(".sample").forEach(btn => btn.addEventListener("click", () => {
+    selected = btn.dataset.key; photoURL = null;
+    $("#prev").hidden = true; $("#file").value = "";
+    updateUpload();
+  }));
+}
+function updateUpload() {
+  $$(".sample").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.key === selected)));
+  $("#cont").disabled = !(selected || photoURL);
+  $("#status").textContent = selected ? `Selected sample: ${ITEMS[selected].name}.`
+    : photoURL ? "Photo added. Preview only, no AI analysis." : "Nothing selected yet.";
+}
+$("#file").addEventListener("change", e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  if (photoURL) URL.revokeObjectURL(photoURL);
+  photoURL = URL.createObjectURL(f); selected = null;
+  const p = $("#prev"); p.src = photoURL; p.hidden = false;
+  updateUpload();
+});
+$("#cont").addEventListener("click", () => { renderResult(selected); go("results"); });
+
+/* ---------- RESULTS ---------- */
+function guidance(key, isDemo) {
+  const it = ITEMS[key];
+  return `<span class="badge">${isDemo ? "DEMO RESULT" : "GENERAL GUIDANCE · chosen by you"}</span>
+    <div><span class="cat" style="background:${it.color}">Suggested category: ${it.cat}</span></div>
+    <h3>How to dispose of it</h3><ol>${it.steps.map(s => `<li>${s}</li>`).join("")}</ol>
+    <div class="tip"><strong>Eco tip:</strong> ${it.tip}</div>`;
+}
+function renderResult(key) {
+  const body = $("#resbody");
+  if (key) {
+    const it = ITEMS[key];
+    body.innerHTML = `<div class="res"><div class="imgbox">${it.svg}<h3 style="margin:10px 0 0">${it.name}</h3></div>
+      <div>${guidance(key, true)}
+      <p class="note">This is a pre-written demonstration. EcoSort AI does not use a real AI model. Disposal rules vary by location.</p></div></div>`;
+  } else {
+    body.innerHTML = `<div class="res"><div class="imgbox"><img src="${photoURL}" alt="Your uploaded photo"><h3 style="margin:10px 0 0">Your photo</h3></div>
+      <div><span class="badge">NO AI ANALYSIS</span>
+      <h3 style="margin-top:10px">We can’t identify this photo</h3>
+      <p>Real AI image recognition is not implemented in this prototype, so your photo is shown as a preview only. If you tell us what it looks like, we can show general guidance for similar items.</p>
+      <div class="row" id="pick">${Object.entries(ITEMS).map(([k, v]) => `<button class="btn ghost small" data-pick="${k}">It’s like: ${v.name}</button>`).join("")}</div>
+      <div id="pickOut" style="margin-top:16px"></div></div></div>`;
+    $$("[data-pick]").forEach(b => b.addEventListener("click", () => {
+      $("#pickOut").innerHTML = guidance(b.dataset.pick, false);
+    }));
+  }
+}
+$("#another").addEventListener("click", () => {
+  selected = null; photoURL = null; $("#prev").hidden = true; $("#file").value = "";
+  updateUpload(); go("upload");
+});
+
+/* ---------- DAILY CHALLENGE ---------- */
+function showChallenge() {
+  const [t, d] = CHALLENGES[chIndex];
+  $("#chTitle").textContent = t; $("#chText").textContent = d; $("#chMsg").textContent = "";
+  $("#chDone").disabled = false;
+}
+$("#chDone").addEventListener("click", () => { $("#chMsg").textContent = "Nice work! 🌱"; $("#chDone").disabled = true; });
+$("#chNew").addEventListener("click", () => { chIndex = (chIndex + 1) % CHALLENGES.length; showChallenge(); });
+
+/* ---------- START ---------- */
+buildSamples(); showChallenge(); updateUpload(); go("home");
+</script>
+</body>
+</html>
